@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --color-retro-bg: #180d25;
+  --color-retro-card: #281a38;
+  --color-retro-pink: #ff4fa3;
+  --color-retro-blue: #39c6f4;
+  --color-retro-yellow: #ffd166;
+}
