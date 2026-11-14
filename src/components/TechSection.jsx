@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react'
 import { obtenerTecnologias } from '../services/supabaseApi'
 import { createPortal } from 'react-dom'
 
-export default function TechSection() {
-  const [decada, setDecada] = useState('90s')
+export default function TechSection({ decada = '90s' }) {
   const [dispositivos, setDispositivos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
@@ -58,28 +57,7 @@ export default function TechSection() {
         </p>
       </div>
 
-      {/* Selector de década */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#24163b] p-4">
-        <span className="text-sm text-[#b8a9ca]">
-          Explora una década:
-        </span>
-
-        <div className="flex gap-2">
-          {['90s', '2000s'].map(opcion => (
-            <button
-              key={opcion}
-              onClick={() => setDecada(opcion)}
-              className={`rounded-lg border px-4 py-2 text-sm font-semibold transition ${decada === opcion
-                ? 'border-pink-400 bg-pink-500 text-white'
-                : 'border-white/20 text-[#b8a9ca] hover:border-cyan-400'
-                }`}
-            >
-              Años {opcion === '90s' ? '90' : '2000'}
-            </button>
-          ))}
-        </div>
-      </div>
-
+      
       {/* Estados */}
       {cargando && (
         <p className="py-12 text-center text-cyan-300">
@@ -178,33 +156,78 @@ export default function TechSection() {
               </button>
             </div>
 
+
             <h3 className="mt-4 text-2xl font-bold">
               {seleccionado.nombre}
             </h3>
 
             <p className="mt-1 text-cyan-400">
-              {seleccionado.marca}
+              {seleccionado.marca} · {seleccionado.anio}
             </p>
 
-            <p className="mt-5 text-sm leading-relaxed text-[#c5b6d5]">
-              {seleccionado.descripcion}
-            </p>
+            <img
+              src={seleccionado.imagen_url}
+              alt={seleccionado.nombre}
+              className="mt-5 w-full max-h-64 rounded-xl object-contain bg-[#160d25]"
+            />
 
-            <div className="mt-5 rounded-xl border border-white/10 bg-[#261831] p-4">
-              <p className="text-sm text-[#b8a9ca]">
-                Categoría: {seleccionado.categoria}
+            {/* Historia */}
+            <div className="mt-6">
+              <h4 className="mb-2 font-bold text-pink-400">
+                📖 Historia y origen
+              </h4>
+              <p className="text-sm leading-relaxed text-[#c5b6d5]">
+                {seleccionado.historia || seleccionado.descripcion}
               </p>
-              <p className="mt-2 text-sm text-[#b8a9ca]">
-                Año de lanzamiento: {seleccionado.anio}
+            </div>
+
+            {/* Características */}
+            <div className="mt-6 rounded-xl border border-white/10 bg-[#261831] p-4">
+              <h4 className="mb-3 font-bold text-cyan-300">
+                ⚙️ Características principales
+              </h4>
+
+              <ul className="space-y-2">
+                {(seleccionado.caracteristicas || []).map((caracteristica, index) => (
+                  <li
+                    key={index}
+                    className="flex gap-2 text-sm text-[#c5b6d5]"
+                  >
+                    <span className="text-cyan-400">✦</span>
+                    {caracteristica}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Impacto */}
+            <div className="mt-6">
+              <h4 className="mb-2 font-bold text-pink-400">
+                🌎 Impacto en su generación
+              </h4>
+
+              <p className="text-sm leading-relaxed text-[#c5b6d5]">
+                {seleccionado.impacto || 'Información próximamente disponible.'}
               </p>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="rounded-full border border-cyan-400/30 px-3 py-1 text-xs text-cyan-300">
+                {seleccionado.categoria}
+              </span>
+
+              <span className="rounded-full border border-pink-400/30 px-3 py-1 text-xs text-pink-300">
+                {seleccionado.decada}
+              </span>
             </div>
 
             <button
               onClick={() => setSeleccionado(null)}
-              className="mt-5 w-full rounded-xl bg-pink-500 py-3 font-bold text-white hover:bg-pink-400"
+              className="mt-6 w-full rounded-xl bg-pink-500 py-3 font-bold text-white hover:bg-pink-400"
             >
               Cerrar historia
             </button>
+
           </div>
         </div>,
         document.body

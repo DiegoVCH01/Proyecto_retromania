@@ -59,18 +59,52 @@ export async function obtenerPeliculas(decada, pagina = 1) {
   }));
 }
 
-// Obtener el tráiler de una película
-export async function obtenerTrailer(id) {
-  const datos = await consultarTMDB(`/movie/${id}/videos`);
+// Obtener todos los tráileres disponibles de una película
+export async function obtenerTrailers(id) {
+  const idiomas = ["es-ES", "en-US"];
 
-  const trailer =
-    datos.results.find(
-      (video) =>
-        video.site === "YouTube" && video.type === "Trailer" && video.official,
-    ) ||
-    datos.results.find(
-      (video) => video.site === "YouTube" && video.type === "Trailer",
-    );
+  const respuestas = await Promise.allSettled(
+    idiomas.map((language) =>
+      consultarTMDB(`/movie/${id}/videos`, { language }),
+    ),
+  );
 
-  return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
+  const videos = respuestas.flatMap((resultado) =>
+    resultado.status === "fulfilled" ? (resultado.value.results ?? []) : [],
+  );
+
+  const candidatos = videos.filter(
+    (video) =>
+      video.site === "YouTube" &&
+      ["Trailer", "Teaser"].includes(video.type) &&
+      video.key,
+  );
+
+  // Evitar videos duplicados
+  const unicos = [
+    ...new Map(candidatos.map((video) => [video.key, video])).values(),
+  ];
+
+  // Priorizar videos oficiales, en español y tipo tráiler
+  const prioridad = (video) => {
+    let puntos = 0;
+
+    if (video.official) puntos += 8;
+    if (video.iso_639_1 === "es") puntos += 4;
+    else if (video.iso_639_1 === "en") puntos += 2;
+    if (video.type === "Trailer") puntos += 1;
+
+    return puntos;
+  };
+
+  return unicos
+    .sort((a, b) => prioridad(b) - prioridad(a))
+    .map((video) => ({
+      key: video.key,
+      nombre: video.name,
+      idioma: video.iso_639_1,
+      oficial: video.official,
+      tipo: video.type,
+      url: `https://www.youtube.com/watch?v=${video.key}`,
+    }));
 }

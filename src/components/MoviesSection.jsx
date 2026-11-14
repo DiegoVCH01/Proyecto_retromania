@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import {
   obtenerPeliculas,
-  obtenerTrailer,
+  obtenerTrailers,
 } from '../services/tmdbApi'
 import { createPortal } from 'react-dom'
 
@@ -10,7 +10,8 @@ export default function MoviesSection({ decada = '90s' }) {
   const [peliculas, setPeliculas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
-  const [trailer, setTrailer] = useState(null)
+  const [trailers, setTrailers] = useState([])
+  const [indiceTrailer, setIndiceTrailer] = useState(0)
   const [cargandoTrailer, setCargandoTrailer] = useState(false)
   const [errorTrailer, setErrorTrailer] = useState('')
   const [trailersNoDisponibles, setTrailersNoDisponibles] = useState([])
@@ -44,13 +45,14 @@ export default function MoviesSection({ decada = '90s' }) {
   async function reproducirTrailer(id) {
     setCargandoTrailer(true)
     setErrorTrailer('')
-    setTrailer(null)
+    setTrailers([])
+    setIndiceTrailer(0)
 
     try {
-      const url = await obtenerTrailer(id)
+      const resultados = await obtenerTrailers(id)
 
-      if (url) {
-        setTrailer(url)
+      if (resultados.length > 0) {
+        setTrailers(resultados)
       } else {
         setTrailersNoDisponibles(prev =>
           prev.includes(id) ? prev : [...prev, id]
@@ -58,12 +60,19 @@ export default function MoviesSection({ decada = '90s' }) {
       }
     } catch {
       setErrorTrailer(
-        'No se pudo consultar el tráiler. Inténtalo nuevamente.'
+        'No se pudieron consultar los tráileres. Inténtalo nuevamente.'
       )
     } finally {
       setCargandoTrailer(false)
     }
   }
+
+  function cerrarTrailer() {
+    setTrailers([])
+    setIndiceTrailer(0)
+  }
+
+  const trailerActual = trailers[indiceTrailer]
 
 
   const tituloDecada = decada === '90s' ? 'años 90' : 'años 2000'
@@ -194,10 +203,10 @@ export default function MoviesSection({ decada = '90s' }) {
       )}
 
 
-      {trailer && createPortal(
+      {trailerActual && createPortal(
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
-          onClick={() => setTrailer(null)}
+          onClick={cerrarTrailer}
         >
           <div
             role="dialog"
@@ -206,29 +215,97 @@ export default function MoviesSection({ decada = '90s' }) {
             className="relative w-full max-w-4xl max-h-[90dvh] overflow-y-auto rounded-2xl border border-pink-500/30 bg-[#1a0f2e] p-3 shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="mb-3 flex justify-end">
+            {/* Encabezado */}
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-white">
+                  {trailerActual.nombre}
+                </p>
+
+                <p className="text-xs text-[#b8a9ca]">
+                  {trailerActual.idioma === 'es'
+                    ? 'Español'
+                    : trailerActual.idioma === 'en'
+                      ? 'Inglés'
+                      : trailerActual.idioma.toUpperCase()}
+                  {' · '}
+                  {trailerActual.oficial ? 'Oficial' : 'No oficial'}
+                  {' · '}
+                  {indiceTrailer + 1} de {trailers.length}
+                </p>
+              </div>
+
               <button
-                onClick={() => setTrailer(null)}
+                onClick={cerrarTrailer}
                 className="rounded-lg bg-pink-500 px-4 py-2 font-bold text-white hover:bg-pink-400"
               >
                 ✕ Cerrar
               </button>
             </div>
 
+            {/* Reproductor */}
             <div className="aspect-video overflow-hidden rounded-xl bg-black">
               <iframe
-                src={`https://www.youtube.com/embed/${new URL(trailer).searchParams.get('v')}`}
-                title="Tráiler de película"
+                key={trailerActual.key}
+                src={`https://www.youtube.com/embed/${trailerActual.key}`}
+                title={trailerActual.nombre}
                 className="h-full w-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
             </div>
+
+            {/* Opciones */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+
+              <a
+                href={trailerActual.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-white px-4 py-2 text-sm font-bold text-black transition hover:bg-gray-200"
+              >
+                Ver en YouTube ↗
+              </a>
+
+              {trailers.length > 1 && (
+                <div className="flex gap-2">
+
+                  <button
+                    onClick={() =>
+                      setIndiceTrailer(actual =>
+                        (actual - 1 + trailers.length) % trailers.length
+                      )
+                    }
+                    className="rounded-lg border border-cyan-400/40 px-4 py-2 text-sm font-bold text-cyan-300 hover:bg-cyan-400/10"
+                  >
+                    ← Anterior
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      setIndiceTrailer(actual =>
+                        (actual + 1) % trailers.length
+                      )
+                    }
+                    className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-bold text-white hover:bg-pink-400"
+                  >
+                    Otro tráiler →
+                  </button>
+
+                </div>
+              )}
+
+            </div>
+
+            <p className="mt-3 text-center text-xs text-[#b8a9ca]">
+              Si el video no se reproduce, puedes abrirlo directamente en YouTube.
+            </p>
+
           </div>
         </div>,
         document.body
       )}
-
     </section>
   )
 }
