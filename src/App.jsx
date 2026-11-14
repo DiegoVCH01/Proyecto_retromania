@@ -1,21 +1,33 @@
+import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Header from './components/layout/Header'
+import Footer from './components/layout/Footer'
+import SelectorDecada from './components/ui/SelectorDecada'
+import Home from './pages/Home'
+import Videojuegos from './pages/Videojuegos'
+import Musica from './pages/Musica'
+import Cultura from './pages/Cultura'
+import Comunidad from './pages/Comunidad'
+import NotFound from './pages/NotFound'
+
 function App() {
-  return (
-    <main className="min-h-screen bg-retro-bg flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold text-retro-pink">
-          RetroManía
-        </h1>
-
-        <p className="mt-4 text-xl text-retro-blue">
-          Revive los mejores años 90 y 2000
-        </p>
-
-        <p className="mt-3 text-white">
-          Proyecto desarrollado con React y Tailwind CSS
-        </p>
-      </div>
-    </main>
-  )
+  const [decada, setDecada] = useState('90s')
+  return <BrowserRouter>
+    <div className="min-h-screen bg-[#1a0f2e] text-white">
+      <Header />
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <SelectorDecada decada={decada} onChange={setDecada} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/videojuegos" element={<Videojuegos />} />
+          <Route path="/musica" element={<Musica />} />
+          <Route path="/cultura" element={<Cultura />} />
+          <Route path="/comunidad" element={<Comunidad />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <Footer />
+    </div>
+  </BrowserRouter>
 }
-
 export default App

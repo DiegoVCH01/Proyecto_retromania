@@ -1,9 +1,120 @@
 @import "tailwindcss";
 
 @theme {
-  --color-retro-bg: #180d25;
-  --color-retro-card: #281a38;
-  --color-retro-pink: #ff4fa3;
-  --color-retro-blue: #39c6f4;
+  --color-retro-pink: #ff4ac9;
+  --color-retro-blue: #4ad0ff;
   --color-retro-yellow: #ffd166;
+  --color-retro-bg: #120a1f;
 }
+
+:root {
+  --color-pink: #ff4ac9;
+  --color-cyan: #4ad0ff;
+  --color-dark: #120a1f;
+  --color-card: #1f1333;
+  --color-card-hover: #2a1a47;
+  --color-text: #e0d6f2;
+  --color-muted: #9d92b8;
+}
+
+body {
+  background: linear-gradient(135deg, var(--color-dark) 0%, #1a0f2e 50%, var(--color-dark) 100%);
+  color: var(--color-text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Títulos con brillo */
+h1, h2, h3, h4 {
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+/* Gradiente de texto */
+.text-gradient {
+  background: linear-gradient(90deg, var(--color-pink), var(--color-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tarjetas con estilo */
+.card {
+  background: var(--color-card);
+  border: 1px solid rgba(255, 74, 201, 0.15);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+.card:hover {
+  background: var(--color-card-hover);
+  border-color: rgba(255, 74, 201, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 74, 201, 0.1);
+}
+
+/* Botones */
+.btn-primary {
+  background: linear-gradient(90deg, var(--color-pink), #ff6ed6);
+  color: black;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 20px rgba(255, 74, 201, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-cyan);
+  border: 1px solid var(--color-cyan);
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background: rgba(74, 208, 255, 0.1);
+  box-shadow: 0 0 15px rgba(74, 208, 255, 0.2);
+}
+
+/* Inputs */
+.input-field {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 6px;
+  transition: border 0.3s ease;
+  width: 100%;
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-pink);
+  box-shadow: 0 0 0 2px rgba(255, 74, 201, 0.2);
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+section {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+section:nth-child(2) { animation-delay: 0.1s; }
+section:nth-child(3) { animation-delay: 0.2s; }
+section:nth-child(4) { animation-delay: 0.3s; }
+section:nth-child(5) { animation-delay: 0.4s; }
+section:nth-child(6) { animation-delay: 0.5s; }
+section:nth-child(7) { animation-delay: 0.6s; }
