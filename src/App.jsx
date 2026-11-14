@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
-import SelectorDecada from './components/ui/SelectorDecada'
 import Home from './pages/Home'
 import Videojuegos from './pages/Videojuegos'
 import Musica from './pages/Musica'
@@ -16,9 +15,8 @@ function App() {
     <div className="min-h-screen bg-[#1a0f2e] text-white">
       <Header />
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <SelectorDecada decada={decada} onChange={setDecada} />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home decada={decada} onChangeDecada={setDecada}/>} />
           <Route path="/videojuegos" element={<Videojuegos />} />
           <Route path="/musica" element={<Musica />} />
           <Route path="/cultura" element={<Cultura />} />
