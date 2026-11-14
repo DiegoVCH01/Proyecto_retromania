@@ -19,7 +19,7 @@ function App() {
           <Route path="/" element={<Home decada={decada} onChangeDecada={setDecada}/>} />
           <Route path="/videojuegos" element={<Videojuegos />} />
           <Route path="/musica" element={<Musica decada={decada} onChangeDecada={setDecada} />} />
-          <Route path="/cultura" element={<Cultura />} />
+          <Route path="/cultura" element={<Cultura decada={decada}  />} />
           <Route path="/comunidad" element={<Comunidad />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -7,7 +7,7 @@ export async function obtenerTecnologias(decada = "90s") {
   }
 
   const parametros = new URLSearchParams({
-    select: "id,nombre,marca,anio,decada,categoria,descripcion,imagen_url",
+    select: "id,nombre,marca,anio,decada,categoria,descripcion,imagen_url,historia,caracteristicas,impacto",
     decada: `eq.${decada}`,
     order: "anio.asc",
   });
