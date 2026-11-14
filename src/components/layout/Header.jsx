@@ -1,5 +1,6 @@
+
 import { useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 
 const enlaces = [
   { to: '/', label: 'Inicio' },
@@ -11,17 +12,116 @@ const enlaces = [
 
 export default function Header() {
   const [menuAbierto, setMenuAbierto] = useState(false)
-  const clases = ({ isActive }) => `transition-colors hover:text-[#ff4ac9] ${isActive ? 'text-[#ff4ac9] font-bold' : 'text-[#b8b8d1]'}`
+
+  const estiloEnlace = ({ isActive }) =>
+    `relative py-2 text-sm font-medium transition-colors duration-200
+    ${isActive
+      ? 'text-pink-400'
+      : 'text-[#c3b5d1] hover:text-white'
+    }`
+
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#1a0f2e]/95 backdrop-blur">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        <Link to="/" className="text-xl md:text-2xl font-bold text-[#ff4ac9]">🎮 RetroManía</Link>
-        <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-5 text-sm">
-          {enlaces.map(link => <NavLink key={link.to} to={link.to} className={clases}>{link.label}</NavLink>)}
+    <header className="sticky top-0 z-50 border-b border-pink-500/20 bg-[#1a1029]/95 backdrop-blur-md">
+
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-5 px-4 py-4">
+
+        {/* Logo */}
+        <Link
+          to="/"
+          onClick={() => setMenuAbierto(false)}
+          className="flex shrink-0 items-center gap-3"
+        >
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-pink-500/40 bg-pink-500/10 text-2xl">
+            🕹️
+          </div>
+
+          <div>
+            <span className="block text-xl font-extrabold leading-tight tracking-tight">
+              <span className="text-pink-400">Retro</span>
+              <span className="text-cyan-400">Manía</span>
+            </span>
+
+            <span className="block text-[9px] font-semibold tracking-[0.22em] text-yellow-400">
+              REVIVE LOS MEJORES AÑOS
+            </span>
+          </div>
+        </Link>
+
+        {/* Navbar escritorio */}
+        <nav
+          aria-label="Navegación principal"
+          className="hidden items-center gap-6 lg:flex"
+        >
+          {enlaces.map((enlace) => (
+            <NavLink
+              key={enlace.to}
+              to={enlace.to}
+              end={enlace.to === '/'}
+              className={estiloEnlace}
+            >
+              {({ isActive }) => (
+                <>
+                  {enlace.label}
+
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 h-0.5 w-full rounded-full bg-pink-400" />
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
         </nav>
-        <button type="button" aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuAbierto} aria-controls="menu-movil" onClick={() => setMenuAbierto(v => !v)} className="md:hidden text-2xl text-[#4ad0ff]">{menuAbierto ? '✕' : '☰'}</button>
+
+        {/* Etiqueta decorativa */}
+        <div className="hidden shrink-0 items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 xl:flex">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-400" />
+          <span className="text-[10px] font-semibold tracking-widest text-cyan-400">
+            MODO NOSTALGIA
+          </span>
+        </div>
+
+        {/* Botón móvil */}
+        <button
+          type="button"
+          aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={menuAbierto}
+          aria-controls="menu-movil"
+          onClick={() => setMenuAbierto(!menuAbierto)}
+          className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-2xl text-cyan-400 transition-colors hover:bg-white/10 lg:hidden"
+        >
+          {menuAbierto ? '✕' : '☰'}
+        </button>
+
       </div>
-      {menuAbierto && <nav id="menu-movil" aria-label="Navegación móvil" className="md:hidden px-4 pb-4 flex flex-col gap-3 text-sm">{enlaces.map(link => <NavLink key={link.to} to={link.to} onClick={() => setMenuAbierto(false)} className={clases}>{link.label}</NavLink>)}</nav>}
+
+      {/* Menú responsive */}
+      {menuAbierto && (
+        <nav
+          id="menu-movil"
+          aria-label="Navegación móvil"
+          className="border-t border-white/10 bg-[#211330] px-4 py-4 lg:hidden"
+        >
+          <div className="mx-auto flex max-w-7xl flex-col gap-2">
+            {enlaces.map((enlace) => (
+              <NavLink
+                key={enlace.to}
+                to={enlace.to}
+                end={enlace.to === '/'}
+                onClick={() => setMenuAbierto(false)}
+                className={({ isActive }) =>
+                  `rounded-lg px-4 py-3 text-sm font-medium transition-colors ${isActive
+                    ? 'bg-pink-500/15 text-pink-400'
+                    : 'text-[#c3b5d1] hover:bg-white/5 hover:text-white'
+                  }`
+                }
+              >
+                {enlace.label}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+      )}
+
     </header>
   )
 }
