@@ -17,10 +17,10 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         <Routes>
           <Route path="/" element={<Home decada={decada} onChangeDecada={setDecada}/>} />
-          <Route path="/videojuegos" element={<Videojuegos />} />
+          <Route path="/videojuegos" element={<Videojuegos decada={decada} onChangeDecada={setDecada}/>} />
           <Route path="/musica" element={<Musica decada={decada} onChangeDecada={setDecada} />} />
           <Route path="/cultura" element={<Cultura decada={decada}  onChangeDecada={setDecada}/>} />
-          <Route path="/comunidad" element={<Comunidad />} />
+          <Route path="/comunidad" element={<Comunidad decada={decada} onChangeDecada={setDecada}/>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
