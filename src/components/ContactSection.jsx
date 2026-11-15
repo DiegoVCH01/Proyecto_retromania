@@ -1,42 +1,63 @@
 import { useState } from 'react';
+import { enviarRecuerdo } from '../services/supabaseApi';
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
-    decadaTesoro: 'Años 2000 (PS2, MP3, MSN)',
+    decadaTesoro: 'Años 2000',
     mensaje: ''
   });
-  const [estadoEnvio, setEstadoEnvio] = useState(''); // '', 'enviando', 'exito', 'error'
+
+  const [estadoEnvio, setEstadoEnvio] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 1. Validar que no falten datos
     if (!formData.nombre || !formData.correo || !formData.mensaje) {
-      setEstadoEnvio('error');
+      setEstadoEnvio('error_datos');
       setTimeout(() => setEstadoEnvio(''), 3000);
       return;
     }
 
     setEstadoEnvio('enviando');
-    setTimeout(() => {
+
+    try {
+      // 2. Enviar a Supabase
+      console.log("Intentando enviar a Supabase:", formData); // Ver qué se envía
+      const respuesta = await enviarRecuerdo(formData);
+      console.log("Respuesta de Supabase:", respuesta); // Ver éxito
+
       setEstadoEnvio('exito');
-      setFormData({ nombre: '', correo: '', decadaTesoro: 'Años 2000 (PS2, MP3, MSN)', mensaje: '' });
+
+      // Limpiar formulario tras el éxito
+      setFormData({
+        nombre: '',
+        correo: '',
+        decadaTesoro: 'Años 2000',
+        mensaje: ''
+      });
 
       setTimeout(() => {
         setEstadoEnvio('');
       }, 4000);
-    }, 1500);
+
+    } catch (error) {
+      // 3. Capturar error de Supabase
+      console.error('ERROR DETALLADO DE SUPABASE:', error); // Mostrar el error real
+      setEstadoEnvio('error_bd');
+      setTimeout(() => setEstadoEnvio(''), 4000);
+    }
   };
 
   return (
     <div className="flex flex-col gap-6">
-
       {/* Formulario Buzón */}
       <div className="bg-[#1a112c] border border-white/10 rounded-2xl p-6 relative overflow-hidden">
         <div className="flex justify-between items-center mb-6">
@@ -92,8 +113,8 @@ export default function ContactSection() {
               onChange={handleInputChange}
               className="w-full bg-black/30 border border-white/10 rounded-lg py-2.5 px-3 text-sm text-white focus:border-cyan-400 outline-none appearance-none"
             >
-              <option>Años 2000 (PS2, MP3, MSN)</option>
-              <option>Años 90 (SNES, VHS, Cassettes)</option>
+              <option value="Años 2000">Años 2000 </option>
+              <option value="Años 90">Años 90 </option>
             </select>
           </div>
 
@@ -114,20 +135,24 @@ export default function ContactSection() {
             </div>
           </div>
 
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             disabled={estadoEnvio === 'enviando'}
-            className={`w-full py-3 rounded-lg font-bold text-sm shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex justify-center items-center gap-2 ${estadoEnvio === 'exito'
+            className={`w-full py-3 rounded-lg font-bold text-sm shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex justify-center items-center gap-2 ${
+              estadoEnvio === 'exito' 
                 ? 'bg-green-500 text-white shadow-green-500/50'
                 : estadoEnvio === 'enviando'
-                  ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-pink-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] hover:scale-[1.02]'
-              }`}
+                ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                : estadoEnvio.includes('error')
+                ? 'bg-red-500 text-white shadow-red-500/50'
+                : 'bg-gradient-to-r from-pink-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] hover:scale-[1.02]'
+            }`}
           >
             {estadoEnvio === 'enviando' && 'Procesando memoria... ⏳'}
             {estadoEnvio === 'exito' && '¡Recuerdo archivado! ✅'}
             {estadoEnvio === '' && '▷ Enviar recuerdo al buzón 🚀'}
-            {estadoEnvio === 'error' && 'Faltan datos ⚠️'}
+            {estadoEnvio === 'error_datos' && 'Faltan datos ⚠️'}
+            {estadoEnvio === 'error_bd' && 'Error de base de datos ❌'}
           </button>
         </form>
 
@@ -141,7 +166,7 @@ export default function ContactSection() {
         )}
       </div>
 
-      {/* Tarjetas Informativas */}
+      {/* Tarjetas Informativas (Se mantienen igual) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-[#1a112c] border border-white/10 rounded-xl p-5 flex flex-col gap-2">
           <h3 className="text-yellow-400 font-bold text-sm flex items-center gap-2">
@@ -154,7 +179,7 @@ export default function ContactSection() {
 
         <div className="bg-[#1a112c] border border-white/10 rounded-xl p-5 flex flex-col justify-center items-center text-center">
           <h3 className="text-4xl font-extrabold text-cyan-400 mb-1">15.000+</h3>
-          <p className="text-[10px] font-bold text-white uppercase tracking-widest">Miembros Activos</p>
+          <p className="text-[10px] font-bold text-white uppercase tracking-widest">RECUERDOS COMPARTIDOS</p>
           <p className="text-xs text-gray-500">en el archivo colectivo</p>
         </div>
       </div>
