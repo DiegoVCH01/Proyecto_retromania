@@ -7,6 +7,11 @@ export default function GamesSection({ decada }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
 
+  // Paginación y Botón Mostrar Más
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [hayMasJuegos, setHayMasJuegos] = useState(true);
+  const [cargandoMas, setCargandoMas] = useState(false);
+
   // Búsqueda
   const [busqueda, setBusqueda] = useState('');
   const [busquedaActiva, setBusquedaActiva] = useState('');
@@ -16,24 +21,54 @@ export default function GamesSection({ decada }) {
   const [detalleJuego, setDetalleJuego] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
-  // Cargar lista de juegos reaccionando a la prop global 'decada'
+  // 1. Cargar juegos iniciales cuando cambia la década o la búsqueda
   useEffect(() => {
     let activo = true;
-    const cargarJuegos = async () => {
+
+    const cargarJuegosIniciales = async () => {
       setCargando(true);
       setError('');
+      setPaginaActual(1); // Reiniciar paginación
+      setHayMasJuegos(true);
+      setJuegos([]); // Limpiar grilla
+
       try {
-        const datos = await obtenerJuegosRAWG(decada, busquedaActiva);
-        if (activo) setJuegos(datos);
+        const datosAPI = await obtenerJuegosRAWG(decada, busquedaActiva, 1);
+        if (activo) {
+          setJuegos(datosAPI.resultados);
+          setHayMasJuegos(datosAPI.hayMasPaginas);
+        }
       } catch (err) {
         if (activo) setError('Asegúrate de configurar VITE_RAWG_API_KEY en tu archivo .env');
       } finally {
         if (activo) setCargando(false);
       }
     };
-    cargarJuegos();
+
+    cargarJuegosIniciales();
+
     return () => { activo = false; };
   }, [decada, busquedaActiva]);
+
+  // 2. Función para el botón "Mostrar más"
+  const cargarMasJuegos = async () => {
+    setCargandoMas(true);
+    const siguientePagina = paginaActual + 1;
+
+    try {
+      const datosAPI = await obtenerJuegosRAWG(decada, busquedaActiva, siguientePagina);
+
+      // Agregamos los nuevos juegos al array existente
+      setJuegos(juegosAnteriores => [...juegosAnteriores, ...datosAPI.resultados]);
+      setPaginaActual(siguientePagina);
+      setHayMasJuegos(datosAPI.hayMasPaginas);
+
+    } catch (error) {
+      console.error("Error al cargar más juegos:", error);
+    } finally {
+      setCargandoMas(false);
+    }
+  };
 
   const handleBuscar = (e) => {
     if (e.key === 'Enter') {
@@ -57,7 +92,7 @@ export default function GamesSection({ decada }) {
   return (
     <section className="max-w-7xl mx-auto px-4 pb-12">
 
-      {/* Barra de Búsqueda (Sin los botones de década locales) */}
+      {/* Barra de Búsqueda */}
       <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-[#1a0f2e] border border-pink-500/30 p-4 rounded-xl mb-8 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
         <div className="relative w-full">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400">🔍</span>
@@ -72,7 +107,7 @@ export default function GamesSection({ decada }) {
         </div>
       </div>
 
-      {/* Estados de Carga */}
+      {/* Estados de Carga Inicial */}
       {cargando && (
         <div className="py-20 flex justify-center items-center">
           <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
@@ -100,7 +135,7 @@ export default function GamesSection({ decada }) {
               const year = juego.released ? juego.released.substring(0, 4) : 'N/A';
 
               return (
-                <div key={juego.id} className="group bg-[#1a0f2e] border border-white/10 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all hover:shadow-[0_0_20px_rgba(236,72,153,0.2)] flex flex-col">
+                <div key={`${juego.id}-${Math.random()}`} className="group bg-[#1a0f2e] border border-white/10 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all hover:shadow-[0_0_20px_rgba(236,72,153,0.2)] flex flex-col">
 
                   <div className="relative h-48 overflow-hidden bg-black">
                     <img
@@ -140,6 +175,29 @@ export default function GamesSection({ decada }) {
               );
             })}
           </div>
+
+          {/* === BOTÓN MOSTRAR MÁS === */}
+          {hayMasJuegos && (
+            <div className="mt-12 flex justify-center">
+              <button
+                onClick={cargarMasJuegos}
+                disabled={cargandoMas}
+                className={`px-8 py-3 rounded-full font-bold text-sm border-2 transition-all ${cargandoMas
+                    ? 'border-gray-600 text-gray-400 bg-gray-800 cursor-not-allowed'
+                    : 'border-pink-500 text-pink-400 hover:bg-pink-500 hover:text-white shadow-[0_0_15px_rgba(236,72,153,0.3)]'
+                  }`}
+              >
+                {cargandoMas ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    Buscando cartuchos...
+                  </span>
+                ) : (
+                  '⬇ Mostrar más juegos'
+                )}
+              </button>
+            </div>
+          )}
         </>
       )}
 

@@ -10,12 +10,34 @@ export default function SurveySection({ decadaGlobal }) {
   }, [decadaGlobal]);
 
   const calcularRetro = () => {
-    let p90 = decada === '90s' ? 75 : 25;
-    let p2000 = decada === '2000s' ? 75 : 25;
+    // 1. Base según la década (ahora con más variabilidad matemática)
+    let baseP90 = decada === '90s' ? 70 + Math.floor(Math.random() * 10) : 15 + Math.floor(Math.random() * 10);
+    let baseP2000 = decada === '2000s' ? 70 + Math.floor(Math.random() * 10) : 15 + Math.floor(Math.random() * 10);
 
-    if (categoria === 'videojuegos') { p90 += 8; p2000 -= 8; }
-    if (categoria === 'tecnologia') { p2000 += 12; p90 -= 12; }
-    if (categoria === 'musica') { p90 += 5; p2000 -= 5; }
+    // 2. Modificadores de peso según la categoría
+    if (categoria === 'videojuegos') {
+      baseP90 += decada === '90s' ? 15 : -5;
+      baseP2000 += decada === '2000s' ? 15 : -5;
+    }
+    if (categoria === 'tecnologia') {
+      baseP2000 += 12;
+      baseP90 -= 8;
+    }
+    if (categoria === 'musica') {
+      baseP90 += 10;
+      baseP2000 -= 2;
+    }
+    if (categoria === 'cine') {
+      baseP90 += 8;
+      baseP2000 += 5;
+    }
+
+    // 3. Normalizar para que nunca pase de 100 ni baje de 0
+    const finalP90 = Math.min(Math.max(baseP90, 5), 95);
+    const finalP2000 = 100 - finalP90; // Para que siempre sumen 100%
+
+    // 4. Calcular el Score Total de Afinidad
+    const scoreTotal = decada === '90s' ? finalP90 : finalP2000;
 
     const titulos = {
       '90s-videojuegos': 'Arcade Master de 16-bits',
@@ -28,10 +50,19 @@ export default function SurveySection({ decadaGlobal }) {
       '2000s-tecnologia': 'Y2K Nativo y Pionero MSN'
     };
 
+    const descripciones = {
+      'videojuegos': 'Tus pulgares tienen memoria muscular de botones físicos y joysticks.',
+      'musica': 'Sabes exactamente el dolor de que un CD se raye en tu canción favorita.',
+      'cine': 'Comprendes la magia de alquilar una película el viernes por la noche.',
+      'tecnologia': 'Presenciaste la evolución del dial-up a la banda ancha. Eres historia digital viva.'
+    };
+
     setResultado({
       titulo: titulos[`${decada}-${categoria}`] || 'Nostálgico de pura cepa',
-      p90: Math.min(Math.max(p90, 5), 95),
-      p2000: Math.min(Math.max(100 - p90, 5), 95)
+      descripcion: descripciones[categoria],
+      scoreTotal: scoreTotal,
+      p90: finalP90,
+      p2000: finalP2000
     });
   };
 
@@ -55,9 +86,8 @@ export default function SurveySection({ decadaGlobal }) {
           <span className="text-yellow-400 font-mono">01.</span> ¿Cuál es tu década favorita definitiva?
         </h3>
         <div className="space-y-3">
-          <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-            decada === '90s' ? 'border-pink-500 bg-pink-500/10' : 'border-white/10 hover:border-white/30 bg-black/20'
-          }`}>
+          <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${decada === '90s' ? 'border-pink-500 bg-pink-500/10' : 'border-white/10 hover:border-white/30 bg-black/20'
+            }`}>
             <div className="flex items-center gap-4">
               <input type="radio" name="decada" className="hidden" checked={decada === '90s'} onChange={() => setDecada('90s')} />
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${decada === '90s' ? 'border-pink-500' : 'border-gray-500'}`}>
@@ -71,9 +101,8 @@ export default function SurveySection({ decadaGlobal }) {
             <span className="text-xl opacity-50">📼</span>
           </label>
 
-          <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-            decada === '2000s' ? 'border-pink-500 bg-pink-500/10' : 'border-white/10 hover:border-white/30 bg-black/20'
-          }`}>
+          <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${decada === '2000s' ? 'border-pink-500 bg-pink-500/10' : 'border-white/10 hover:border-white/30 bg-black/20'
+            }`}>
             <div className="flex items-center gap-4">
               <input type="radio" name="decada" className="hidden" checked={decada === '2000s'} onChange={() => setDecada('2000s')} />
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${decada === '2000s' ? 'border-pink-500' : 'border-gray-500'}`}>
@@ -103,9 +132,8 @@ export default function SurveySection({ decadaGlobal }) {
             <button
               key={cat.id}
               onClick={() => setCategoria(cat.id)}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all ${
-                categoria === cat.id ? 'border-pink-500 bg-pink-500/10 text-white' : 'border-white/10 bg-black/20 text-[#b8a9ca] hover:border-white/30'
-              }`}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all ${categoria === cat.id ? 'border-pink-500 bg-pink-500/10 text-white' : 'border-white/10 bg-black/20 text-[#b8a9ca] hover:border-white/30'
+                }`}
             >
               <span className="text-2xl mb-2">{cat.icon}</span>
               <span className="text-xs font-semibold">{cat.label}</span>
@@ -114,7 +142,7 @@ export default function SurveySection({ decadaGlobal }) {
         </div>
       </div>
 
-      <button 
+      <button
         onClick={calcularRetro}
         className="w-full py-3 rounded-lg bg-gradient-to-r from-pink-500 to-pink-600 text-white font-bold text-sm shadow-[0_0_15px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.5)] hover:scale-[1.02] transition-all"
       >
@@ -127,17 +155,27 @@ export default function SurveySection({ decadaGlobal }) {
             <span className="bg-pink-500/20 text-pink-400 border border-pink-500/30 px-2 py-0.5 rounded text-[10px] font-bold tracking-wide">RESULTADO VERIFICADO</span>
             <span className="text-xl">🕹️</span>
           </div>
-          <h4 className="text-cyan-400 font-bold text-lg mb-2">{resultado.p90 > resultado.p2000 ? '92%' : '88%'} {resultado.titulo}</h4>
-          <p className="text-xs text-[#b8a9ca] mb-4">¡Eres un auténtico explorador de tu época! Tu ADN digital vibra con tus elecciones retro.</p>
-          
+
+          {/* Aquí inyectamos el score matemático real */}
+          <h4 className="text-cyan-400 font-bold text-lg mb-2">
+            {resultado.scoreTotal}% {resultado.titulo}
+          </h4>
+
+          {/* Aquí mostramos la descripción dinámica */}
+          <p className="text-xs text-[#b8a9ca] mb-4">
+            {resultado.descripcion} Tu ADN digital vibra con tus elecciones retro.
+          </p>
+
           <div className="flex justify-between text-[10px] text-white font-mono mb-1">
             <span>Años 90 ({resultado.p90}%)</span>
             <span>Años 2000 ({resultado.p2000}%)</span>
           </div>
+
           <div className="h-1.5 w-full bg-gray-800 rounded-full flex overflow-hidden mb-2">
             <div className={`h-full bg-pink-500 transition-all duration-1000`} style={{ width: `${resultado.p90}%` }}></div>
             <div className={`h-full bg-yellow-500 transition-all duration-1000`} style={{ width: `${resultado.p2000}%` }}></div>
           </div>
+
           <p className="text-[10px] text-gray-500 text-right">🔥 Más de <strong className="text-white">12,450 votos</strong> registrados</p>
         </div>
       )}
