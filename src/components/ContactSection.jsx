@@ -1,85 +1,164 @@
-const ContactSection = () => {
+import { useState } from 'react';
+
+export default function ContactSection() {
+  const [formData, setFormData] = useState({
+    nombre: '',
+    correo: '',
+    decadaTesoro: 'Años 2000 (PS2, MP3, MSN)',
+    mensaje: ''
+  });
+  const [estadoEnvio, setEstadoEnvio] = useState(''); // '', 'enviando', 'exito', 'error'
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!formData.nombre || !formData.correo || !formData.mensaje) {
+      setEstadoEnvio('error');
+      setTimeout(() => setEstadoEnvio(''), 3000);
+      return;
+    }
+
+    setEstadoEnvio('enviando');
+    setTimeout(() => {
+      setEstadoEnvio('exito');
+      setFormData({ nombre: '', correo: '', decadaTesoro: 'Años 2000 (PS2, MP3, MSN)', mensaje: '' });
+
+      setTimeout(() => {
+        setEstadoEnvio('');
+      }, 4000);
+    }, 1500);
+  };
+
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Columna izquierda — Información */}
-        <div>
-          <span className="text-xs text-retro-pink bg-retro-pink/10 px-2 py-1 rounded">📮 BUZÓN RETRO</span>
-          <h2 className="text-2xl font-bold mt-2 mb-4">Comparte tu nostalgia</h2>
-          <p className="text-gray-400 mb-8">¿Tienes anécdotas, fotos de tus consolas antiguas o sugerencias de clásicos para añadir al archivo? ¡Escríbenos!</p>
+    <div className="flex flex-col gap-6">
 
-          <div className="space-y-4">
-            <div className="card-retro neon-border p-4 rounded-lg">
-              <h4 className="font-bold text-retro-yellow mb-2">💡 ¿Sabías que...?</h4>
-              <p className="text-sm text-gray-400">Soplar los cartuchos de Nintendo en realidad oxidaba los contactos con el tiempo. ¡pero todos lo hicimos!</p>
-            </div>
-
-            <div className="card-retro neon-border-blue p-4 rounded-lg">
-              <h4 className="font-bold text-retro-blue mb-2">👥 Comunidad Activa</h4>
-              <p className="text-sm text-gray-400">Más de 15.000 nostálgicos ya han enviado anécdotas de salones arcade y cibercafés de los 90 y 2000.</p>
+      {/* Formulario Buzón */}
+      <div className="bg-[#1a112c] border border-white/10 rounded-2xl p-6 relative overflow-hidden">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">📬</span>
+            <div>
+              <h2 className="text-lg font-bold text-white">Buzón Retro: Comparte tu recuerdo</h2>
+              <p className="text-[10px] text-[#b8a9ca] uppercase tracking-wider font-semibold">Conserva tu anécdota en la cápsula del tiempo</p>
             </div>
           </div>
+          <span className="text-pink-400 text-xs font-semibold flex items-center gap-1">
+            🔓 Abierto
+          </span>
         </div>
 
-        {/* Columna derecha — Formulario */}
-        <div className="card-retro neon-border rounded-xl p-6">
-          <h3 className="text-lg font-bold mb-6">Enviar recuerdo al buzón ✉️</h3>
-          
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Nombre completo *</label>
-                <input 
-                  type="text" 
-                  placeholder="Tu nombre o alias retro"
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm focus:outline-none focus:border-retro-pink"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Correo electrónico *</label>
-                <input 
-                  type="email" 
-                  placeholder="tu_email@retro.com"
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm focus:outline-none focus:border-retro-pink"
-                  required
+        <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-white mb-1">Nombre o Alias Arcade <span className="text-pink-500">*</span></label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">👤</span>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleInputChange}
+                  placeholder="PixelVoyager"
+                  className={`w-full bg-black/30 border rounded-lg py-2.5 pl-9 pr-3 text-sm text-white focus:border-cyan-400 outline-none transition-colors ${estadoEnvio === 'error' && !formData.nombre ? 'border-red-500' : 'border-white/10'}`}
                 />
               </div>
             </div>
-
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Década favorita *</label>
-              <select 
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm focus:outline-none focus:border-retro-pink"
-                required
-              >
-                <option value="">Selecciona una época...</option>
-                <option>Años 90 (SNES, VHS, Grunge, Windows 95)</option>
-                <option>Años 2000 (PS2, MSN, MP3, Y2K)</option>
-              </select>
+              <label className="block text-xs font-semibold text-white mb-1">Correo electrónico <span className="text-pink-500">*</span></label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@</span>
+                <input
+                  type="email"
+                  name="correo"
+                  value={formData.correo}
+                  onChange={handleInputChange}
+                  placeholder="usuario@retromania.net"
+                  className={`w-full bg-black/30 border rounded-lg py-2.5 pl-9 pr-3 text-sm text-white focus:border-cyan-400 outline-none transition-colors ${estadoEnvio === 'error' && !formData.correo ? 'border-red-500' : 'border-white/10'}`}
+                />
+              </div>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Mensaje o anécdota nostálgica *</label>
-              <textarea 
-                placeholder="Cuéntanos esa tarde jugando con amigos o tu recuerdo favorito..."
-                rows="4"
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm focus:outline-none focus:border-retro-pink resize-none"
-                required
-              ></textarea>
-            </div>
-
-            <button 
-              type="submit"
-              className="w-full btn-blue py-2.5 rounded font-bold"
+          <div>
+            <label className="block text-xs font-semibold text-white mb-1">Década que mejor define tu tesoro <span className="text-pink-500">*</span></label>
+            <select
+              name="decadaTesoro"
+              value={formData.decadaTesoro}
+              onChange={handleInputChange}
+              className="w-full bg-black/30 border border-white/10 rounded-lg py-2.5 px-3 text-sm text-white focus:border-cyan-400 outline-none appearance-none"
             >
-              ENVIAR RECUERDO AL BUZÓN ➤
-            </button>
-          </form>
+              <option>Años 2000 (PS2, MP3, MSN)</option>
+              <option>Años 90 (SNES, VHS, Cassettes)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-white mb-1">Mensaje o anécdota nostálgica <span className="text-pink-500">*</span></label>
+            <textarea
+              name="mensaje"
+              value={formData.mensaje}
+              onChange={handleInputChange}
+              rows="4"
+              maxLength={500}
+              placeholder="Todavía recuerdo desempacar la PlayStation 2 en la Navidad de 2001..."
+              className={`w-full bg-black/30 border rounded-lg py-3 px-3 text-sm text-white focus:border-cyan-400 outline-none resize-none transition-colors ${estadoEnvio === 'error' && !formData.mensaje ? 'border-red-500' : 'border-white/10'}`}
+            ></textarea>
+            <div className="flex justify-between items-center mt-1">
+              <span className={`text-[10px] ${formData.mensaje.length > 450 ? 'text-pink-500' : 'text-yellow-400'}`}>✎ {formData.mensaje.length} caracteres</span>
+              <span className="text-[10px] text-gray-500">Máx 500 caracteres</span>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={estadoEnvio === 'enviando'}
+            className={`w-full py-3 rounded-lg font-bold text-sm shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex justify-center items-center gap-2 ${estadoEnvio === 'exito'
+                ? 'bg-green-500 text-white shadow-green-500/50'
+                : estadoEnvio === 'enviando'
+                  ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-pink-500 to-cyan-400 text-white hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] hover:scale-[1.02]'
+              }`}
+          >
+            {estadoEnvio === 'enviando' && 'Procesando memoria... ⏳'}
+            {estadoEnvio === 'exito' && '¡Recuerdo archivado! ✅'}
+            {estadoEnvio === '' && '▷ Enviar recuerdo al buzón 🚀'}
+            {estadoEnvio === 'error' && 'Faltan datos ⚠️'}
+          </button>
+        </form>
+
+        {/* Overlay de éxito */}
+        {estadoEnvio === 'exito' && (
+          <div className="absolute inset-0 z-20 bg-[#1a112c]/90 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in">
+            <span className="text-5xl mb-4">👾</span>
+            <h3 className="text-cyan-400 font-bold text-xl mb-2">¡Cápsula Guardada!</h3>
+            <p className="text-sm text-[#b8a9ca] text-center px-8">Tu recuerdo ha sido enviado al servidor central de la nostalgia.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Tarjetas Informativas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-[#1a112c] border border-white/10 rounded-xl p-5 flex flex-col gap-2">
+          <h3 className="text-yellow-400 font-bold text-sm flex items-center gap-2">
+            <span className="border border-yellow-400/30 p-1 rounded-md">💡</span> ¿Sabías que...?
+          </h3>
+          <p className="text-xs text-[#b8a9ca] leading-relaxed">
+            Soplar los cartuchos de NES y SNES en realidad no limpiaba los conectores. La humedad condensada del aliento desgastaba el cobre.
+          </p>
+        </div>
+
+        <div className="bg-[#1a112c] border border-white/10 rounded-xl p-5 flex flex-col justify-center items-center text-center">
+          <h3 className="text-4xl font-extrabold text-cyan-400 mb-1">15.000+</h3>
+          <p className="text-[10px] font-bold text-white uppercase tracking-widest">Miembros Activos</p>
+          <p className="text-xs text-gray-500">en el archivo colectivo</p>
         </div>
       </div>
-    </section>
-  );
-};
 
-export default ContactSection;
+    </div>
+  );
+}
