@@ -5,6 +5,7 @@ import SelectorDecada from "../components/ui/SelectorDecada";
 import CategoryCard from "../components/CategoryCard";
 import DestacadoCard from '../components/DestacadoCard'
 
+// ... (tus arrays de categorias y destacados se mantienen igual) ...
 const categorias = [
   {
     titulo: "Videojuegos",
@@ -47,7 +48,7 @@ const destacados = [
     descripcion:
       'Revive las tardes frente al televisor con las consolas que transformaron los videojuegos.',
     imagen:
-      'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=900&auto=format&fit=crop&q=85',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzC-lMIqxKeLW6dTs_rLtXKUP9QVJJFKVwXd9RLvsCRg&s=10',
     ruta: '/videojuegos',
     color: 'pink',
   },
@@ -57,7 +58,7 @@ const destacados = [
     descripcion:
       'De los casetes a los reproductores MP3. Descubre las canciones que marcaron nuestra historia.',
     imagen:
-      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&auto=format&fit=crop&q=85',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmL5OEZ_dADJ_P3vYKkY-CSYmQrGCZg9K_M3vXUrietA&s=10',
     ruta: '/musica',
     color: 'blue',
   },
@@ -67,18 +68,22 @@ const destacados = [
     descripcion:
       'Historias y personajes legendarios que siguen despertando nuestra nostalgia.',
     imagen:
-      'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=900&auto=format&fit=crop&q=85',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8D_9A4Ko6LfpSu42wC5iYMB9s_GwCP_VxcDVDNUG3Sw&s=10',
     ruta: '/cultura',
     color: 'yellow',
   },
-]
+];
 
 export default function Home({ decada, onChangeDecada }) {
   return (
     <>
       <HeroSection />
+      
+      {/* El Selector sigue usando onChange porque así lo programaste internamente */}
       <SelectorDecada decada={decada} onChange={onChangeDecada} />
-      <DecadesSection decada={decada} onChange={onChangeDecada} />
+      
+      {/* CORRECCIÓN APLICADA AQUÍ: onChangeDecada={onChangeDecada} */}
+      <DecadesSection decada={decada} onChangeDecada={onChangeDecada} />
 
       <section className="my-20">
 

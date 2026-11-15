@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 const decadas = [
   {
     id: '90s',
@@ -37,21 +39,36 @@ export default function DecadesSection({
   decada,
   onChangeDecada,
 }) {
+  const navigate = useNavigate();
+
+  const handleNavegacion = (e, idDecada) => {
+    e.preventDefault();
+
+    // Validación de seguridad: solo ejecuta si la función fue enviada por el padre
+    if (typeof onChangeDecada === 'function') {
+      onChangeDecada(idDecada);
+    } else {
+      console.warn('Falta pasar el prop onChangeDecada a <DecadesSection />');
+    }
+
+    setTimeout(() => {
+      navigate('/videojuegos');
+      window.scrollTo(0, 0);
+    }, 50);
+  };
+
   return (
     <section
       id="decadas"
       className="my-16 scroll-mt-24"
     >
-      {/* Encabezado de la sección */}
       <div className="mb-8">
         <span className="text-xs font-semibold tracking-widest text-cyan-400">
           LÍNEA TEMPORAL
         </span>
-
         <h2 className="mt-2 text-3xl font-bold text-white">
           Las Dos Grandes Épocas
         </h2>
-
         <p className="mt-2 text-sm text-[#b8a9ca]">
           Desde la magia pixelada en cartuchos hasta el
           despertar de la revolución digital.
@@ -59,7 +76,6 @@ export default function DecadesSection({
         </p>
       </div>
 
-      {/* Tarjetas de décadas */}
       <div className="grid gap-6 md:grid-cols-2">
         {decadas.map((item) => {
           const activa = decada === item.id
@@ -80,7 +96,6 @@ export default function DecadesSection({
                 }
               `}
             >
-              {/* Etiquetas superiores */}
               <div className="mb-4 flex items-center justify-between">
                 <span
                   className={`
@@ -99,7 +114,6 @@ export default function DecadesSection({
                 </span>
               </div>
 
-              {/* Imagen externa */}
               <div className="mb-5 overflow-hidden rounded-lg">
                 <img
                   src={item.imagen}
@@ -111,7 +125,6 @@ export default function DecadesSection({
                 />
               </div>
 
-              {/* Información */}
               <h3 className="mb-3 text-2xl font-bold text-white">
                 {item.titulo}
               </h3>
@@ -120,7 +133,6 @@ export default function DecadesSection({
                 {item.descripcion}
               </p>
 
-              {/* Características */}
               <div className="mb-6 flex flex-wrap gap-2">
                 {item.detalles.map((detalle) => (
                   <span
@@ -133,13 +145,12 @@ export default function DecadesSection({
                 ))}
               </div>
 
-              {/* Botón de selección */}
-              <button
-                type="button"
-                onClick={() => onChangeDecada(item.id)}
-                aria-pressed={activa}
+              {/* Botón convertido a enlace dinámico seguro */}
+              <a
+                href="/videojuegos"
+                onClick={(e) => handleNavegacion(e, item.id)}
                 className={`
-                  w-full rounded-lg border px-4 py-3
+                  block w-full text-center rounded-lg border px-4 py-3
                   text-sm font-semibold transition-all
                   ${esNoventas
                     ? 'border-pink-500 text-pink-400 hover:bg-pink-500/10'
@@ -148,7 +159,7 @@ export default function DecadesSection({
                 `}
               >
                 {item.boton} →
-              </button>
+              </a>
             </article>
           )
         })}
